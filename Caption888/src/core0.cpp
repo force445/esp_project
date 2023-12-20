@@ -1,5 +1,3 @@
-
-
 #include "core0.h"
 #include "core1.h"
 #include "Config.h"
@@ -18,11 +16,6 @@
 
 
 const TickType_t x_RunCore1 = 10000 / portTICK_PERIOD_MS; // Delay Bluetooth
-
-// ** ReadMe ** 
-// Kai jid dek try dek try bon park Oong
-// =====================================================================================================
-
 
 void RunCore1_Task(void *p) // void Loop
 {  
