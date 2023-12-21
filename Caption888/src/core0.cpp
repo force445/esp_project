@@ -9,7 +9,6 @@
 // // node-red
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-// #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 

@@ -20,10 +20,15 @@ void setup()
 
   ERROM_Wifi_setup(); 
   // Web_setup(); // core 1  4096
+
+  BT_setup();
+
+  BT_Connect();
 }
 
 void loop()
 {
+  // Bluetooth_Connect();
   //   // ไม่ต้องทำอะไรใน loop() เนื่องจากเราใช้ Multitask
 }
 

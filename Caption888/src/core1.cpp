@@ -2,88 +2,35 @@
 // #include "Config.h"
 #include "core0.h"
 #include "core1.h"
+#include "Logistic.h"
 
 #include <EEPROM.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <Arduino.h>
+
 
 AsyncWebServer server(80);
 
-const TickType_t x_Web = 2000 / portTICK_PERIOD_MS; // Delay Bluetooth
+const TickType_t x_Web = 2000/ portTICK_PERIOD_MS; // Delay Bluetooth
 
-// ModbusIP mb;
+String Color_out[8] = {"Unknow","Iron","Black","White","Yellow","Green","Red","Blue" };
+bool  Contrast = 0;
+bool  Update_Out = 0;
 
-void Web_Task(void *p) // void Loop
-{
-  while (true)
-  {
-    Serial.println("Web_Task");
-    vTaskDelay(x_Web);
-  }
-}
+// void Web_Task(void *p) // void Loop
+// {
+//   while (true)
+//   {
+//     Serial.println("Web_Task");
+//     vTaskDelay(x_Web);
+//   }
+// }
 
-void Web_setup()
-{
-  xTaskCreatePinnedToCore(Web_Task, "Web_Task", 2048 * 8, NULL, 1, NULL, 1);
-}
-
-// ---------------Ai Prediction Model
-
-#include <Arduino.h>
-
-#pragma once
-namespace Eloquent {
-    namespace ML {
-        namespace Port {
-            class LogisticRegression {
-                public:
-                    /**
-                    * Predict class for features vector
-                    */
-                    int predict(float *x) {
-                        float votes[8] = { 0.0f };
-                        votes[0] = dot(x,   -0.252061898245  , 0.109712447171  , 0.145782761034 );
-                        votes[1] = dot(x,   -0.11161064993  , -0.004441849411  , 0.160572589063 );
-                        votes[2] = dot(x,   0.253408759936  , -0.111743349183  , -0.090885443051 );
-                        votes[3] = dot(x,   0.221314316886  , 0.282195264686  , -0.495864031042 );
-                        votes[4] = dot(x,   -0.245372314017  , -0.114081723784  , 0.34736126184 );
-                        votes[5] = dot(x,   0.148349014425  , -0.316607735215  , 0.200251309322 );
-                        votes[6] = dot(x,   -0.418247938405  , 0.297198736661  , 0.033778510179 );
-                        votes[7] = dot(x,   0.40422070935  , -0.142231790925  , -0.300996957344 );
-                        // return argmax of votes
-                        uint8_t classIdx = 0;
-                        float maxVotes = votes[0];
-
-                        for (uint8_t i = 1; i < 8; i++) {
-                            if (votes[i] > maxVotes) {
-                                classIdx = i;
-                                maxVotes = votes[i];
-                            }
-                        }
-
-                        return classIdx;
-                    }
-
-                protected:
-                    /**
-                    * Compute dot product
-                    */
-                    float dot(float *x, ...) {
-                        va_list w;
-                        va_start(w, 3);
-                        float dot = 0.0;
-
-                        for (uint16_t i = 0; i < 3; i++) {
-                            const float wi = va_arg(w, double);
-                            dot += x[i] * wi;
-                        }
-
-                        return dot;
-                    }
-                };
-            }
-        }
-    }
+// void Web_setup()
+// {
+//   xTaskCreatePinnedToCore(Web_Task, "Web_Task", 2048 * 8, NULL, 4, NULL, 1);
+// }
 
 
 //  Color ==========================
@@ -144,6 +91,7 @@ void Read_rgb() {
   delayMicroseconds(10);
   blue = pulseIn(sensorOut, LOW);
 }
+
 float getMean(int * val, int arrayCount ,int Index) {
   long total = 0;
   for (int i = 0; i < arrayCount; i++) {
@@ -168,9 +116,6 @@ float getStdDev(int * val, int arrayCount , int Index) {
   float stdDev = sqrt(variance);
   return stdDev;
 }
-String Color_out[8] = {"Unknow","Iron","Black","White","Yellow","Green","Red","Blue" };
-bool  Contrast = 0;
-bool  Update_Out = 0;
 
 float RGB_Mean(){
 float out = 0;
@@ -269,15 +214,6 @@ long r1=0,g1=0,b1=0;int tim = 1;
      
 
 }
-
-// ------------------  END of Ai predect Model----------------------------------------------------
-
-// ==================  START Color  ==================
-
-
-
-// ==================  END of color =================
-
 
 // Function to write data to EEPROM
 void writeEEPROM(int addr, const String &data)
@@ -473,7 +409,5 @@ void ERROM_Wifi_setup()
 
   server.begin();
 
-  xTaskCreatePinnedToCore(ERROM_Wifi_Task, "ERROM_Wifi_Task", 2048 * 8, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(ERROM_Wifi_Task, "ERROM_Wifi_Task", 1024 * 8, NULL, 3, NULL, 1);
 }
-
-// ========================================================================
